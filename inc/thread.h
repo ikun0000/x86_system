@@ -8,6 +8,7 @@
 
 /* 线程函数类型 */
 typedef void thread_func(void *);
+typedef int16_t pid_t;
 
 /* 进程或线程状态 */
 enum task_status 
@@ -73,6 +74,7 @@ struct thread_stack
 struct task_struct 
 {
     uint32_t *self_kstack;                  // 各个内核线程都有自己的内核栈
+    pid_t pid;                              // 进程/线程的PID
     enum task_status status;                // 线程的状态
     uint8_t priority;                       // 线程优先级
     char name[16];                          // 线程名

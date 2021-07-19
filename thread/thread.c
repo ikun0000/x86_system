@@ -7,10 +7,12 @@
 #include "interrupt.h"
 #include "print.h"
 #include "process.h"
+#include "sync.h"
 
 struct task_struct *main_thread;        // 主线程PCB
 struct list thread_ready_list;          // 就绪队列
 struct list thread_all_list;            // 所有任务队列
+struct lock pid_lock;                   // 分配PID锁
 static struct list_elem *thread_tag;    // 用于保存队列中的线程节点
 
 extern void switch_to(struct task_struct *cur, struct task_struct *next);
@@ -29,6 +31,16 @@ static void kernel_thread(thread_func *function, void *func_arg)
     /* 执行线程前开中断，避免接收不到中断而导致其他线程无法被调度 */
     intr_enable();
     function(func_arg);
+}
+
+/* 分配pid */
+static pid_t allocate_pid(void)
+{
+    static pid_t next_pid = 0;      // 静态变量，会一直存在
+    lock_acquire(&pid_lock);
+    next_pid++;
+    lock_release(&pid_lock);
+    return next_pid;
 }
 
 /* 初始化线程栈，将待执行的函数和参数放到thread_stack中相应的位置 */
@@ -50,6 +62,7 @@ void thread_create(struct task_struct *pthread, thread_func *function, void *fun
 void init_thread(struct task_struct *pthread, char *name, int prio)
 {
     memset(pthread, 0, sizeof(*pthread));
+    pthread->pid = allocate_pid();
     strcpy(pthread->name, name);        /* !!!!!!!! overflow !!!!!!!! */
 
     if (pthread == main_thread) pthread->status = TASK_RUNNING;
@@ -166,7 +179,8 @@ void thread_init(void)
     put_str("thread_init start...\n");
     list_init(&thread_ready_list);
     list_init(&thread_all_list);
-    
+    lock_init(&pid_lock);
+    /* 将当前main线程初始化为线程 */
     make_main_thread();
     put_str("thread_init done.\n");
 }

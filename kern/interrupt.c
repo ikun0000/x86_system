@@ -9,10 +9,12 @@
 #define PIC_S_CTRL 0xa0     // 8259A slaver control port
 #define PIC_S_DATA 0xa1     // 8259A slaver data port
 
-#define IDT_DESC_CNT 0x30   // current support interrupt count
+#define IDT_DESC_CNT 0x81   // current support interrupt count
 
 #define EFLAGS_IF 0x00000200        // EFLAGS IF = 1
 #define GET_EFLAGS(EFLAG_VAR) asm volatile("pushfl; popl %0": "=g"(EFLAG_VAR))
+
+extern uint32_t syscall_handler(void);
 
 struct gate_desc 
 {
@@ -130,11 +132,14 @@ static void make_idt_desc(struct gate_desc *p_gdesc, uint8_t attr, intr_handler 
 
 static void idt_desc_init(void)
 {
-    int i;
+    int i, lastindex = IDT_DESC_CNT - 1;
     for (i = 0; i < IDT_DESC_CNT; i++)
     {
         make_idt_desc(&idt[i], IDT_DESC_ATTR_DPL0, intr_entry_table[i]);
     }
+    
+    /* 单独处理系统调用，系统调用对应中断们DPL为3，中断处理函数为syscall_handler */
+    make_idt_desc(&idt[lastindex], IDT_DESC_ATTR_DPL3, syscall_handler);
     put_str("    idt_desc_init done.\n");
 }
 

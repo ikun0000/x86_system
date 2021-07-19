@@ -95,3 +95,31 @@ VECTOR 0x2c, ZERO       ; ps/2鼠标
 VECTOR 0X2d, ZERO       ; fpu浮点单元异常
 VECTOR 0x2e, ZERO       ; 硬盘
 VECTOR 0X2f, ZERO       ; 保留
+
+
+; 0x80号中断，0x80中断不使用VECTOR宏定义
+[bits 32]
+extern syscall_table
+section .text
+global syscall_handler
+syscall_handler:
+    ; 保存上下文环境
+    push 0              ; 和其他中断一样，压入错误码，统一格式j
+    push ds
+    push es
+    push fs
+    push gs
+    pushad
+
+    push 0x80           ; 也是保持统一格式
+    ; 传入参数
+    push edx            ; #3
+    push ecx            ; #2
+    push ebx            ; #1
+    ; 调用子功能处理函数
+    call [syscall_table + eax*4]
+    add esp, 12
+    ; 将返回值存入内核栈的eax位置
+    mov [esp + 8*4], eax
+    jmp intr_exit       ; 使用intr_exit统一返回
+
