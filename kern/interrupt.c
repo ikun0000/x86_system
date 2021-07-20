@@ -81,7 +81,7 @@ static void general_intr_handler(uint8_t vec_nr)
         int page_fault_vaddr = 0;
         /* cr2会在page falut时放入地址 */
         asm volatile ("movl %%cr2, %0": "=r"(page_fault_vaddr));
-        put_str("\npage fault addr is 0x"); put_int(page_fault_vaddr);
+        put_str("\n        page fault addr is 0x"); put_int(page_fault_vaddr);
     }
     put_str("\n!!!!! exception message end !!!!!\n");
     
