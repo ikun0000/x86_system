@@ -73,18 +73,19 @@ struct thread_stack
 
 struct task_struct 
 {
-    uint32_t *self_kstack;                  // 各个内核线程都有自己的内核栈
-    pid_t pid;                              // 进程/线程的PID
-    enum task_status status;                // 线程的状态
-    uint8_t priority;                       // 线程优先级
-    char name[16];                          // 线程名
-    uint8_t ticks;                          // 每次在处理器上执行的滴答数
-    uint32_t elapsed_ticks;                 // 自任务启动后所使用的cpu滴答数
-    struct list_elem general_tag;           // 线程在一般队列中的节点
-    struct list_elem all_list_tag;          // 用于thread_all_list中的节点
-    uint32_t *pgdir;                        // 线程自己页表的虚拟地址
-    struct virtual_addr userproc_vaddr;      // 用户进程虚拟地址
-    uint32_t stack_magic;                   // 用于做栈的边界标记，用于检查栈溢出
+    uint32_t *self_kstack;                          // 各个内核线程都有自己的内核栈
+    pid_t pid;                                      // 进程/线程的PID
+    enum task_status status;                        // 线程的状态
+    uint8_t priority;                               // 线程优先级
+    char name[16];                                  // 线程名
+    uint8_t ticks;                                  // 每次在处理器上执行的滴答数
+    uint32_t elapsed_ticks;                         // 自任务启动后所使用的cpu滴答数
+    struct list_elem general_tag;                   // 线程在一般队列中的节点
+    struct list_elem all_list_tag;                  // 用于thread_all_list中的节点
+    uint32_t *pgdir;                                // 线程自己页表的虚拟地址
+    struct virtual_addr userproc_vaddr;             // 用户进程虚拟地址
+    struct mem_block_desc u_block_desc[DESC_CNT];   // 用户进程内存块描述符
+    uint32_t stack_magic;                           // 用于做栈的边界标记，用于检查栈溢出
 };
 
 extern struct list thread_ready_list;
