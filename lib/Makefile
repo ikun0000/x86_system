@@ -16,7 +16,10 @@ list.o: kern/list.c
 syscall.o: user/syscall.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: print.o string.o bitmap.o list.o syscall.o
+stdio.o: stdio.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: print.o string.o bitmap.o list.o syscall.o stdio.o
 
 clean:	
 	rm -rf *.o

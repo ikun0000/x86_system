@@ -108,8 +108,8 @@ put_char:
     cld
     mov ecx, 960                ; ((2000-80)*2)/4=960
 
-    mov esi, 0xb80a0            ; second line start
-    mov edi, 0xb8000            ; first line start
+    mov esi, 0xc00b80a0         ; second line start
+    mov edi, 0xc00b8000         ; first line start
     rep movsd
 
     mov ebx, 3840               ; last line start

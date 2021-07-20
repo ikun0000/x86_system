@@ -1,5 +1,5 @@
-KERNEL_SOURCE_FILE = kern/intr_entry.S lib/kern/print.S kern/interrupt.c kern/init.c dev/timer.c kern/main.c kern/debug.c lib/string.c lib/kern/bitmap.c kern/memory.c thread/thread.c thread/switch.S lib/kern/list.c thread/sync.c dev/console.c dev/keyboard.c dev/ioqueue.c userproc/tss.c userproc/process.c userproc/syscall_init.c lib/user/syscall.c
-KERNEL_OBJECT_FILE = kern/main.o kern/intr_entry.o kern/interrupt.o kern/init.o lib/print.o dev/timer.o kern/debug.o lib/string.o lib/bitmap.o kern/memory.o thread/thread.o thread/switch.o lib/list.o thread/sync.o dev/console.o dev/keyboard.o dev/ioqueue.o userproc/tss.o userproc/process.o userproc/syscall_init.o lib/syscall.o
+KERNEL_SOURCE_FILE = kern/intr_entry.S lib/kern/print.S kern/interrupt.c kern/init.c dev/timer.c kern/main.c kern/debug.c lib/string.c lib/kern/bitmap.c kern/memory.c thread/thread.c thread/switch.S lib/kern/list.c thread/sync.c dev/console.c dev/keyboard.c dev/ioqueue.c userproc/tss.c userproc/process.c userproc/syscall_init.c lib/user/syscall.c lib/stdio.c
+KERNEL_OBJECT_FILE = kern/main.o kern/intr_entry.o kern/interrupt.o kern/init.o lib/print.o dev/timer.o kern/debug.o lib/string.o lib/bitmap.o kern/memory.o thread/thread.o thread/switch.o lib/list.o thread/sync.o dev/console.o dev/keyboard.o dev/ioqueue.o userproc/tss.o userproc/process.o userproc/syscall_init.o lib/syscall.o lib/stdio.o
 
 boot.bin: boot/boot.S
 	make -C boot boot.bin 
