@@ -30,9 +30,34 @@ int main(void)
     // console_put_char('\n');
     thread_start("k_thread_a", 31, k_thread_a, "I am thread_a");
     thread_start("k_thread_b", 31, k_thread_b, "I am thread_b");
-    while (1); // console_put_str("Main ");
+    while (1) asm volatile ("hlt");
     return 0;
 }
+
+/*
+void k_thread_a(void *arg)
+{
+    void *addr = sys_malloc(33);
+    console_put_str(" I am thread_a, sys_malloc(33), addr is 0x");
+    console_put_int((int)addr);
+    console_put_char('\n');
+    sys_free(addr);
+    console_put_str(" thread_a sys_free\n");
+    while (1) asm volatile ("hlt");
+}
+
+void k_thread_b(void *arg)
+{
+    void *addr = sys_malloc(2048);
+    console_put_str(" I am thread_b, sys_malloc(33), addr is 0x");
+    console_put_int((int)addr);
+    console_put_char('\n');
+    sys_free(addr);
+    console_put_str(" thread_b sys_free\n");
+    while (1) asm volatile ("hlt");
+}
+*/
+
 
 void k_thread_a(void *arg)
 {
@@ -124,10 +149,12 @@ void k_thread_b(void *arg)
       sys_free(addr6);
       sys_free(addr7);
       sys_free(addr8);
+      sys_free(addr9);
     }
     console_put_str(" thread_b end\n");
     while (1);
 }
+
 
 void u_prog_a(void)
 {

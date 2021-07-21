@@ -565,6 +565,7 @@ void sys_free(void *ptr)
         lock_acquire(&mem_pool->lock);
         struct mem_block *b = ptr;
         struct arena *a = block2arena(b);
+
         ASSERT(a->large == 0 || a->large == 1);
         if (a->desc == NULL && a->large == 1)
         {
