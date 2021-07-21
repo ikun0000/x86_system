@@ -57,3 +57,15 @@ uint32_t write(char *str)
     return _syscall1(SYS_WRITE, str);
 }
 
+/* 申请size字节大小的内存，并返回其起始地址，失败返回NULL */
+void *malloc(uint32_t size)
+{
+    return (void *)_syscall1(SYS_MALLOC, size);
+}
+
+/* 释放ptr指向的内存 */
+void free(void *ptr)
+{
+    _syscall1(SYS_FREE, ptr);
+}
+
