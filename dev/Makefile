@@ -13,7 +13,10 @@ keyboard.o: keyboard.c
 ioqueue.o: ioqueue.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: timer.o console.o keyboard.o ioqueue.o
+ide.o: ide.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: timer.o console.o keyboard.o ioqueue.o ide.o
 
 clean:
 	rm -rf *.o

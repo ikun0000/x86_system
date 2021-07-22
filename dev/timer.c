@@ -14,6 +14,9 @@
 #define READ_WRITE_LATCH    3
 #define PIT_CONTROL_PORT    0x43
 
+/* 多少毫秒发生一次中断 */
+#define mil_seconds_per_intr    (1000 / IRQ0_FREQUENCY)
+
 uint32_t ticks;             // 内核自中断开启以来的总共滴答数
 
 /* 把操作的计数器counter_no、读写属性rwl、计数器模式counter_mode
@@ -39,6 +42,23 @@ static void intr_timer_handler(void)
 
     if (cur_thread->ticks == 0) schedule(); // 如果cpu时间片到了就切换任务
     else cur_thread->ticks--;
+}
+
+/* 以tick为单位的sleep */
+static void ticks_to_sleep(uint32_t sleep_ticks)
+{
+    uint32_t start_tick = ticks;
+
+    /* 若间隔的tick数不够让出CPU */
+    while (ticks - start_tick < sleep_ticks) thread_yield();
+}
+
+/* 以毫秒为单位sleep */
+void mtime_sleep(uint32_t m_seconds)
+{
+    uint32_t sleep_ticks = DIV_ROUND_UP(m_seconds, mil_seconds_per_intr);
+    ASSERT(sleep_ticks > 0);   
+    ticks_to_sleep(sleep_ticks);
 }
 
 /* initialize PIT 8253 */

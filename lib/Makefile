@@ -19,7 +19,10 @@ syscall.o: user/syscall.c
 stdio.o: stdio.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: print.o string.o bitmap.o list.o syscall.o stdio.o
+stdio_kern.o: kern/stdio_kern.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: print.o string.o bitmap.o list.o syscall.o stdio.o stdio_kern.o
 
 clean:	
 	rm -rf *.o

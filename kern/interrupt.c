@@ -50,9 +50,10 @@ static void pic_init(void)
     outb(PIC_S_DATA, 0x02);     // ICW3: connect master to IR2
     outb(PIC_S_DATA, 0x01);     // ICW4: 8086 mode, normal EOI
 
-    /* open master IR0 */
-    outb(PIC_M_DATA, 0xfc);
-    outb(PIC_S_DATA, 0xff);
+    /* 打开IRQ0（时钟中断），IRQ1（键盘中断），IRQ2（级联芯片） */
+    outb(PIC_M_DATA, 0xf8);
+    /* 打开IRQ14（打开第一个ata通道中断），IRQ15是第二个ata通道 */
+    outb(PIC_S_DATA, 0xbf);
     
     put_str("    pic_init done.\n");
 }
