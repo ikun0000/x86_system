@@ -6,6 +6,8 @@
 #include "bitmap.h"
 #include "memory.h"
 
+#define MAX_FILES_OPEN_PER_PROC     8
+
 /* 线程函数类型 */
 typedef void thread_func(void *);
 typedef int16_t pid_t;
@@ -80,6 +82,7 @@ struct task_struct
     char name[16];                                  // 线程名
     uint8_t ticks;                                  // 每次在处理器上执行的滴答数
     uint32_t elapsed_ticks;                         // 自任务启动后所使用的cpu滴答数
+    uint32_t fd_table[MAX_FILES_OPEN_PER_PROC];     // 文件描述符数组
     struct list_elem general_tag;                   // 线程在一般队列中的节点
     struct list_elem all_list_tag;                  // 用于thread_all_list中的节点
     uint32_t *pgdir;                                // 线程自己页表的虚拟地址

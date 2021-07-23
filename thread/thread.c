@@ -88,6 +88,15 @@ void init_thread(struct task_struct *pthread, char *name, int prio)
        task_struct就是PCB，也就是一个自然页的首地址，
        而PCB和栈共用一个内存页，所以栈顶就是pthread加上自然页的长度 */
     pthread->self_kstack = (uint32_t *)((uint32_t)pthread + PG_SIZE);
+
+    /* 预留标准输入输出和标准错误输出 */
+    pthread->fd_table[0] = 0;
+    pthread->fd_table[1] = 1;
+    pthread->fd_table[2] = 2;
+    /* 其余置0 */
+    uint8_t fd_idx = 3;
+    while (fd_idx < MAX_FILES_OPEN_PER_PROC) pthread->fd_table[fd_idx++] = -1;
+
     pthread->stack_magic = 0x19870916;      /* 自定义魔数 */
 }
 
