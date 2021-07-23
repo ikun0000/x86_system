@@ -4,6 +4,7 @@
 #include "stdint.h"
 #include "sync.h"
 #include "bitmap.h"
+#include "super_block.h"
 
 /* 分区结构 */
 struct partition 
@@ -41,7 +42,7 @@ struct ide_channel
     struct disk devices[2];         // 通道的主盘和从盘
 };
 
-extern uint8_t channel_ent;
+extern uint8_t channel_cnt;
 extern struct ide_channel channels[]; 
 extern struct list partition_list;
 
