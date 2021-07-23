@@ -11,6 +11,53 @@
 #include "debug.h"
 #include "memory.h"
 
+struct partition *cur_part;     // 默认情况下操作系统使用的分区
+
+/* 在分区链表中找到名为part_name的分区，并将其指针复制给cur_part */
+static int mount_partition(struct list_elem *pelem, int arg)
+{
+    char *part_name = (char *)arg;
+    struct partition *part = elem2entry(struct partition, part_tag, pelem);
+    
+    if (!strcmp(part->name, part_name))
+    {
+        // 找到了
+        cur_part = part;
+        struct disk *hd = cur_part->my_disk;
+        struct super_block *sb_buf = (struct super_block *)sys_malloc(SECTOR_SIZE);
+        
+        /* 在内存中创建cur_part的超级块 */
+        cur_part->sb = (struct super_block *)sys_malloc(sizeof(struct super_block));
+        if (cur_part->sb == NULL) PANIC("alloc memory failed!");
+        
+        /* 读入超级块，并复制到cur_part->sb指向的内存 */
+        memset(sb_buf, 0, SECTOR_SIZE);
+        ide_read(hd, cur_part->start_lba + 1, sb_buf, 1); 
+        memcpy(cur_part->sb, sb_buf, sizeof(struct super_block));
+
+        /* 将硬盘上的块位图读入内存 */
+        cur_part->block_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->block_bitmap_sects * SECTOR_SIZE);
+        if (cur_part->block_bitmap.bits == NULL) PANIC("alloc memory failed!");
+        cur_part->block_bitmap.btmp_bytes_len = sb_buf->block_bitmap_sects * SECTOR_SIZE;
+        ide_read(hd, sb_buf->block_bitmap_lba, cur_part->block_bitmap.bits, sb_buf->block_bitmap_sects);
+        
+        /* 将硬盘上的inode位图读入内存 */
+        cur_part->inode_bitmap.bits = (uint8_t *)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
+        if (cur_part->inode_bitmap.bits == NULL) PANIC("alloc memory failed!");
+        cur_part->inode_bitmap.btmp_bytes_len = sb_buf->inode_bitmap_sects * SECTOR_SIZE;
+        ide_read(hd, sb_buf->inode_bitmap_lba, cur_part->inode_bitmap.bits, sb_buf->inode_bitmap_sects);
+
+        list_init(&cur_part->open_inodes);
+        printk("mount %s done!\n", part->name);
+        
+        /* 已经挂在完毕后返回1让list_traversal停止遍历 */
+        return 1;
+    }
+
+    /* 还没找到，让list_traversal继续遍历 */
+    return 0;       
+}
+
 /* 格式化分区，即初始化分区的元信息，创建文件系统 */
 static void partition_format(struct partition *part)
 {
@@ -121,7 +168,7 @@ void filesys_init()
     uint8_t channel_no = 0, dev_no, part_idx = 0;
     struct super_block *sb_buf = (struct super_block *)sys_malloc(SECTOR_SIZE);
 
-    if (sb_buf == NULL) PANIC("alloc memory failed!\n");
+    if (sb_buf == NULL) PANIC("alloc memory failed!");
 
     printk("searching filesystem......\n");
     
@@ -173,4 +220,9 @@ void filesys_init()
     }
 
     sys_free(sb_buf);
+
+    /* 确定默认挂载分区 */
+    char default_part[8] = "sdb1";
+    /* 挂载分区 */
+    list_traversal(&partition_list, mount_partition, (int)default_part);
 }
