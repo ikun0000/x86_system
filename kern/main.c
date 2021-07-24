@@ -7,12 +7,14 @@
 #include "syscall_init.h"
 #include "syscall.h"
 #include "stdio.h"
+#include "fs.h"
 
-
+/*
 void k_thread_a(void *);
 void k_thread_b(void *);
 void u_prog_a(void);
 void u_prog_b(void);
+*/
 
 int main(void)
 {
@@ -21,6 +23,7 @@ int main(void)
     init_all();
 
     intr_enable();
+    sys_open("/file1", O_CREAT);
 
 //    process_execute(u_prog_a, "user_prog_a");    
 //    process_execute(u_prog_b, "user_prog_b");
@@ -54,7 +57,7 @@ void k_thread_b(void *arg)
 }
 */
 
-
+/*
 void k_thread_a(void *arg)
 {
     void *addr1 = sys_malloc(256);
@@ -126,3 +129,4 @@ void u_prog_b(void)
     printf(" prog_b free all memroy\n");
     while (1);
 }
+*/

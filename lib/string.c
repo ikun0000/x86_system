@@ -83,7 +83,7 @@ char *strcat(char *dst_, const char *src_)
     char *str = dst_;
     while (*str++);
     --str;
-    while ((*str++ == *src_++));
+    while ((*str++ = *src_++));
     return dst_;
 }
 

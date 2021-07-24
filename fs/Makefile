@@ -13,7 +13,7 @@ file.o: file.c
 dir.o: dir.c
 	$(CC) $(CFLAGS) -o $@ $<   
 
-all: fs.o inode.c file.o dir.o
+all: fs.o inode.o file.o dir.o
 
 clean: 
 	rm -rf *.o
