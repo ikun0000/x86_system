@@ -3,6 +3,7 @@
 
 #include "stdint.h"
 #include "inode.h"
+#include "fs.h"
 #include "ide.h"
 #include "global.h"
 
@@ -23,5 +24,14 @@ struct dir_entry
     uint32_t i_no;                      // i节点
     enum file_types f_type;             // 文件类型
 };
+
+extern struct dir root_dir;         // 根目录
+
+void open_root_dir(struct partition *part);
+struct dir *dir_open(struct partition *part, uint32_t inode_no);
+void dir_close(struct dir *dir);
+int search_dir_entry(struct partition *part, struct dir *pdir, const char *name, struct dir_entry *dir_e);
+void create_dir_entry(char *filename, uint32_t inode_no, uint8_t file_type, struct dir_entry *p_de);
+int sync_dir_entry(struct dir* parent_dir, struct dir_entry *p_de, void *io_buf);
 
 #endif

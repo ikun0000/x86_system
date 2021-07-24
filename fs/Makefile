@@ -7,7 +7,13 @@ fs.o: fs.c
 inode.o: inode.c
 	$(CC) $(CFLAGS) -o $@ $<   
 
-all: fs.o inode.c
+file.o: file.c
+	$(CC) $(CFLAGS) -o $@ $<   
+
+dir.o: dir.c
+	$(CC) $(CFLAGS) -o $@ $<   
+
+all: fs.o inode.c file.o dir.o
 
 clean: 
 	rm -rf *.o
