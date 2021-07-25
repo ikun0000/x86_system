@@ -356,6 +356,8 @@ void intr_hd_handler(uint8_t irq_no)
 void ide_init(void)
 {
     printk("ide_init start...\n");
+    
+    memset(channels, 0, sizeof(channels));
 
     /* 获取计算机插入的硬盘数，这个数据保存在BIOS数据区物理地址0x475处 */
     uint8_t hd_cnt = *((uint8_t *)0x475);
