@@ -52,9 +52,9 @@ uint32_t getpid()
 }
 
 /* 打印字符串 */
-uint32_t write(char *str)
+uint32_t write(int32_t fd, const void *buf, uint32_t count)
 {
-    return _syscall1(SYS_WRITE, str);
+    return _syscall3(SYS_WRITE, fd, buf, count);
 }
 
 /* 申请size字节大小的内存，并返回其起始地址，失败返回NULL */

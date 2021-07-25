@@ -6,6 +6,7 @@
 #include "string.h"
 #include "console.h"
 #include "memory.h"
+#include "fs.h"
 
 #define syscall_nr  32
 typedef void*       syscall;
@@ -16,13 +17,6 @@ syscall syscall_table[syscall_nr];
 uint32_t sys_getpid(void)
 {
     return running_thread()->pid;
-}
-
-/* 打印字符串到屏幕 */
-uint32_t sys_write(char *str)
-{
-    console_put_str(str);
-    return strlen(str);
 }
 
 /* 初始化系统调用 */

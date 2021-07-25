@@ -32,7 +32,7 @@ uint32_t printf(const char *fmt, ...)
     char buf[1024] = {0, };
     vsprintf(buf, fmt, args);
     va_end(args);
-    return write(buf);
+    return write(1, buf, strlen(buf));
 }
 
 /* 格式化输出到字符串buf中 */
