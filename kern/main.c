@@ -40,8 +40,7 @@ int main(void)
     printf("3_ read %d bytes:\n%s\n", read_bytes, buf);
     
     printf("_______ close file1 and reopen _______\n");
-    sys_close(fd);
-    fd = sys_open("/file1", O_RDWR);
+    sys_lseek(fd, 0, SEEK_SET);
     memset(buf, 0, 64);
     read_bytes = sys_read(fd, buf, 24);
     printf("4_ read %d bytes:\n%s\n", read_bytes, buf);
