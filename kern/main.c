@@ -23,7 +23,10 @@ int main(void)
     init_all();
 
     intr_enable();
-    sys_open("/file1", O_CREAT);
+    uint32_t fd = sys_open("/file1", O_RDONLY);
+    printf("fd: %d\n", fd);
+    sys_close(fd);
+    printf("%d closed now\n", fd);
 
 //    process_execute(u_prog_a, "user_prog_a");    
 //    process_execute(u_prog_b, "user_prog_b");
