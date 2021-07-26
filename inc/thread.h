@@ -88,6 +88,7 @@ struct task_struct
     uint32_t *pgdir;                                // 线程自己页表的虚拟地址
     struct virtual_addr userproc_vaddr;             // 用户进程虚拟地址
     struct mem_block_desc u_block_desc[DESC_CNT];   // 用户进程内存块描述符
+    uint32_t cwd_inode_nr;                          // 进程所在工作目录的inode编号
     uint32_t stack_magic;                           // 用于做栈的边界标记，用于检查栈溢出
 };
 

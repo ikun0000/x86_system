@@ -97,6 +97,7 @@ void init_thread(struct task_struct *pthread, char *name, int prio)
     uint8_t fd_idx = 3;
     while (fd_idx < MAX_FILES_OPEN_PER_PROC) pthread->fd_table[fd_idx++] = -1;
 
+    pthread->cwd_inode_nr = 0;              /* 以根目录作为默认工作目录 */
     pthread->stack_magic = 0x19870916;      /* 自定义魔数 */
 }
 
