@@ -376,3 +376,71 @@ int delete_dir_entry(struct partition *part, struct dir *pdir, uint32_t inode_no
     /* 没有找到目标目录项 */
     return 0;
 }
+
+/* 读取目录，成功返回一个目录项，失败返回NULL */
+struct dir_entry *dir_read(struct dir *dir)
+{
+    struct dir_entry *dir_e = (struct dir_entry *)dir->dir_buf;
+    struct inode *dir_inode = dir->inode;
+    uint32_t all_blocks[140] = {0, }, block_cnt = 12;
+    uint32_t block_idx = 0, dir_entry_idx = 0;
+    
+    /* 读取目录项占用的所有LBA地址 */
+    while (block_idx < 12)
+    {
+        all_blocks[block_idx] = dir_inode->i_sectors[block_idx];
+        block_idx++;
+    }
+    if (dir_inode->i_sectors[12] != 0)
+    {
+        ide_read(cur_part->my_disk, dir_inode->i_sectors[12], all_blocks + 12, 1);
+        block_cnt = 140;
+    }
+    block_idx = 0;
+
+    uint32_t cur_dir_entry_pos = 0;     // 当前目录项偏移，用于判断是否之前返回的目录项
+    uint32_t dir_entry_size = cur_part->sb->dir_entry_size;
+    uint32_t dir_entrys_per_sec = SECTOR_SIZE / dir_entry_size;
+    /* 因为目录中可能删除了某些文件的目录项，导致目录项排列并不是连续的 */
+    while (block_idx < block_cnt)
+    {
+        if (dir->dir_pos >= dir_inode->i_size) return NULL;
+
+        if (all_blocks[block_idx] == 0)
+        {
+            block_idx++;
+            continue;
+        }
+        
+        memset(dir_e, 0, SECTOR_SIZE);
+        /* 读取磁盘中的目录项到dir结构的缓冲中 */
+        ide_read(cur_part->my_disk, all_blocks[block_idx], dir_e, 1);
+        dir_entry_idx = 0;
+        /* 再遍历扇区内的所有目录项 */
+        while (dir_entry_idx < dir_entrys_per_sec)
+        {
+            if ((dir_e + dir_entry_idx)->f_type)
+            {
+                /* f_type不为0（FT_UNKNOWN）有效 */
+
+                /* 判断是不是新的目录项，避免返回曾经已经返回的目录项 */
+                if (cur_dir_entry_pos < dir->dir_pos)
+                {
+                    cur_dir_entry_pos += dir_entry_size;
+                    dir_entry_idx++;
+                    continue;
+                }
+
+                ASSERT(cur_dir_entry_pos == dir->dir_pos);
+                dir->dir_pos += dir_entry_size;
+                return dir_e + dir_entry_idx;
+            }           
+            
+            dir_entry_idx++;
+        }
+
+        block_idx++;
+    }
+
+    return NULL;
+}

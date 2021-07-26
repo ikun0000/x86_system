@@ -9,6 +9,7 @@
 #include "stdio.h"
 #include "fs.h"
 #include "string.h"
+#include "dir.h"
 
 /*
 void k_thread_a(void *);
@@ -25,48 +26,23 @@ int main(void)
 
     intr_enable();
 
-    printf("/dir1/subdir1 create %s!\n", \
-    sys_mkdir("/dir1/subdir1") == 0 ? "done" : "fail");
-
-    printf("/dir1 create %s!\n", sys_mkdir("/dir1") == 0 ? "done" : "fail");
-
-    printf("/dir1/subdir1 create %s!\n", \
-    sys_mkdir("/dir1/subdir1") == 0 ? "done" : "fail");
-    int fd = sys_open("/dir1/subdir1/file2", O_CREAT | O_RDWR);
-    if (fd != -1)
+    struct dir *p_dir = sys_opendir("/dir1/subdir1");
+    if (p_dir)
     {
-        printf("/dir1/subdir1/file2 create done!\n");
-        sys_write(fd, "This is file file2\n", 19);
-        sys_lseek(fd, 0, SEEK_SET);
-        char buf[32] = {0, };
-        sys_read(fd, buf, 19);
-        printf("/dir1/subdir1/file2: \n%s\n", buf);
-        sys_close(fd);
+        printf("/dir1/subdir1 open done!\n");
+        char *type = NULL;
+        struct dir_entry *dir_e = NULL;
+        while ((dir_e = sys_readdir(p_dir)))
+        {
+            type = dir_e->f_type == FT_REGULAR ? "regular" : "directory";
+            printf("    %s %s\n", type, dir_e->filename);
+        }
+        printf("close dir %d\n", sys_closedir(p_dir));
+    } 
+    else
+    {
+        printf("/dir1/subdir1 open fail!\n");
     }
-    
-/*
-    uint32_t fd = sys_open("/file1", O_RDWR);
-    printf("open /file1, fd: %d\n", fd);
-    char buf[64] = {0, };
-    int read_bytes = sys_read(fd, buf, 18);
-    printf("1_ read %d bytes:\n%s\n", read_bytes, buf);
-    
-    memset(buf, 0, 64);
-    read_bytes = sys_read(fd, buf, 6);
-    printf("2_ read %d bytes:\n%s\n", read_bytes, buf);
-    
-    memset(buf, 0, 64);
-    read_bytes = sys_read(fd, buf, 6);
-    printf("3_ read %d bytes:\n%s\n", read_bytes, buf);
-    
-    printf("_______ close file1 and reopen _______\n");
-    sys_lseek(fd, 0, SEEK_SET);
-    memset(buf, 0, 64);
-    read_bytes = sys_read(fd, buf, 24);
-    printf("4_ read %d bytes:\n%s\n", read_bytes, buf);
-    
-    sys_close(fd);
-*/
 
 //    process_execute(u_prog_a, "user_prog_a");    
 //    process_execute(u_prog_b, "user_prog_b");
