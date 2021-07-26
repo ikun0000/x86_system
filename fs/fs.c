@@ -871,6 +871,40 @@ int32_t sys_chdir(const char *path)
     dir_close(searched_record.parent_dir);
     return ret;
 }
+
+/* 在buf中填充path文件的相关信息，成功返回0，失败返回-1k */
+int32_t sys_stat(const char *path, struct stat *buf)
+{
+    /* 如果是查找根目录直接返回 */
+    if (!strcmp(path, "/") || !strcmp(path, "/.") || !strcmp(path, "/.."))
+    {
+        buf->st_filetype = FT_DIRECTORY;
+        buf->st_ino = 0;
+        buf->st_size = root_dir.inode->i_no;
+        return 0;
+    }
+
+    int32_t ret = -1;
+    struct path_search_record searched_record;
+    memset(&searched_record, 0, sizeof(struct path_search_record));
+    int inode_no = search_file(path, &searched_record);
+    if (inode_no != -1)
+    {
+        struct inode *obj_inode = inode_open(cur_part, inode_no);   
+        buf->st_size = obj_inode->i_size;
+        inode_close(obj_inode);
+        buf->st_filetype = searched_record.file_type;
+        buf->st_ino = inode_no;
+        ret = 0;
+    }
+    else
+    {
+        printk("sys_stat: %s not found\n", path);
+    }
+
+    dir_close(searched_record.parent_dir);
+    return ret;
+}
     
 void filesys_init() 
 {
