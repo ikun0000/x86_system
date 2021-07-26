@@ -25,8 +25,25 @@ int main(void)
 
     intr_enable();
 
-    printf("/file1 delete %s!\n", sys_unlink("/file1") == 0 ? "done" : "fail");
+    printf("/dir1/subdir1 create %s!\n", \
+    sys_mkdir("/dir1/subdir1") == 0 ? "done" : "fail");
 
+    printf("/dir1 create %s!\n", sys_mkdir("/dir1") == 0 ? "done" : "fail");
+
+    printf("/dir1/subdir1 create %s!\n", \
+    sys_mkdir("/dir1/subdir1") == 0 ? "done" : "fail");
+    int fd = sys_open("/dir1/subdir1/file2", O_CREAT | O_RDWR);
+    if (fd != -1)
+    {
+        printf("/dir1/subdir1/file2 create done!\n");
+        sys_write(fd, "This is file file2\n", 19);
+        sys_lseek(fd, 0, SEEK_SET);
+        char buf[32] = {0, };
+        sys_read(fd, buf, 19);
+        printf("/dir1/subdir1/file2: \n%s\n", buf);
+        sys_close(fd);
+    }
+    
 /*
     uint32_t fd = sys_open("/file1", O_RDWR);
     printf("open /file1, fd: %d\n", fd);
