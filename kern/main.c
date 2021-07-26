@@ -25,6 +25,9 @@ int main(void)
 
     intr_enable();
 
+    printf("/file1 delete %s!\n", sys_unlink("/file1") == 0 ? "done" : "fail");
+
+/*
     uint32_t fd = sys_open("/file1", O_RDWR);
     printf("open /file1, fd: %d\n", fd);
     char buf[64] = {0, };
@@ -46,6 +49,7 @@ int main(void)
     printf("4_ read %d bytes:\n%s\n", read_bytes, buf);
     
     sys_close(fd);
+*/
 
 //    process_execute(u_prog_a, "user_prog_a");    
 //    process_execute(u_prog_b, "user_prog_b");

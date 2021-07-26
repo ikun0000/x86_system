@@ -160,4 +160,85 @@ void inode_init(uint32_t inode_no, struct inode *new_inode)
     while (sec_idx < 13) new_inode->i_sectors[sec_idx++] = 0;
 }
 
+/* 将分区part的inode清空 */
+void inode_delete(struct partition *part, uint32_t inode_no, void *io_buf)
+{
+    ASSERT(inode_no < 4096);
+    struct inode_position inode_pos;
+    inode_locate(part, inode_no, &inode_pos);
+    ASSERT(inode_pos.sec_lba <= (part->start_lba + part->sec_cnt));
+    
+    char *inode_buf = (char *)io_buf;
+    if (inode_pos.two_sec)
+    {
+        /* inode跨越两个扇区 */
+        ide_read(part->my_disk, inode_pos.sec_lba, inode_buf, 2);
+        memset((inode_buf + inode_pos.off_size), 0, sizeof(struct inode));
+        ide_write(part->my_disk, inode_pos.sec_lba, inode_buf, 2);
+    }
+    else
+    {
+        /* inode在同一个扇区 */
+        ide_read(part->my_disk, inode_pos.sec_lba, inode_buf, 1);
+        memset((inode_buf + inode_pos.off_size), 0, sizeof(struct inode));
+        ide_write(part->my_disk, inode_pos.sec_lba, inode_buf, 1);
+    }
+}
 
+/* 回收inode的数据块和anode本身 */
+void inode_release(struct partition *part, uint32_t inode_no)
+{
+    struct inode *inode_to_del = inode_open(part, inode_no);
+    ASSERT(inode_to_del->i_no == inode_no);
+
+    /* 回收inode占用的所有块 */
+    uint8_t block_idx = 0, block_cnt = 12;
+    uint32_t block_bitmap_idx;
+    uint32_t all_blocks[140] = {0, };
+
+    /* 获取所有直接块LBA */
+    while (block_idx < 12)
+    {
+        all_blocks[block_idx] = inode_to_del->i_sectors[block_idx];
+        block_idx++;
+    }
+
+    /* 如果有一级间接块表则获取一级块表中所有项，并释放一级块表占用的扇区 */
+    if (inode_to_del->i_sectors[12] != 0)
+    {
+        ide_read(part->my_disk, inode_to_del->i_sectors[12], all_blocks + 12, 1);
+        block_cnt = 140;
+
+        /* 回收一级块表占用的扇区 */
+        block_bitmap_idx = inode_to_del->i_sectors[12] - part->sb->data_start_lba;
+        ASSERT(block_bitmap_idx > 0);
+        bitmap_set(&part->block_bitmap, block_bitmap_idx, 0);
+        bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
+    }
+
+    /* 回收inode占用的块 */
+    block_idx = 0;
+    while (block_idx < block_cnt)
+    {
+        if (all_blocks[block_idx] != 0)
+        {
+            block_bitmap_idx = 0;
+            block_bitmap_idx = all_blocks[block_idx] - part->sb->data_start_lba;
+            ASSERT(block_bitmap_idx > 0);
+            bitmap_set(&part->block_bitmap, block_bitmap_idx, 0);
+            bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
+        }
+        block_idx++;
+    }
+
+    /* 回收inode占用的inode项 */
+    bitmap_set(&part->inode_bitmap, inode_no, 0);
+    bitmap_sync(cur_part, inode_no, INODE_BITMAP);
+
+    void *io_buf = sys_malloc(1024);
+    /* inode项清0 */
+    inode_delete(part, inode_no, io_buf);
+    sys_free(io_buf);
+
+    inode_close(inode_to_del);
+}

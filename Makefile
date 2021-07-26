@@ -17,10 +17,10 @@ kernel.bin: $(KERNEL_SOURCE_FILE)
 	make -C userproc all
 	make -C fs all
 	ld $(KERNEL_OBJECT_FILE) -o ./system -T ./kernel.lds
-	objcopy -I elf32-i386 -R .got.plt -R .comment -R .eh_frame -R .note.gnu.property ./system $@
+	objcopy -I elf32-i386 -S -R .got.plt -R .comment -R .eh_frame -R .note.gnu.property ./system $@
 	rm -rf ./system
 
-no_symble_kernel.bin: $(KERNEL_SOURCE_FILE)
+symble_kernel.bin: $(KERNEL_SOURCE_FILE)
 	make -C lib all 
 	make -C dev all
 	make -C kern all
@@ -28,7 +28,7 @@ no_symble_kernel.bin: $(KERNEL_SOURCE_FILE)
 	make -C userproc all
 	make -C fs all
 	ld $(KERNEL_OBJECT_FILE) -o ./system -T ./kernel.lds
-	objcopy -I elf32-i386 -S -R .got.plt -R .comment -R .eh_frame -R .note.gnu.property ./system $@
+	objcopy -I elf32-i386 -R .got.plt -R .comment -R .eh_frame -R .note.gnu.property ./system $@
 	rm -rf ./system
 
 all: boot.bin loader.bin kernel.bin
