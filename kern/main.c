@@ -26,23 +26,35 @@ int main(void)
 
     intr_enable();
 
-    struct dir *p_dir = sys_opendir("/dir1/subdir1");
-    if (p_dir)
+    printf("/dir1 content before delete /dir1/subdir1: \n");
+    struct dir *dir = sys_opendir("/dir1");
+    char *type = NULL;
+    struct dir_entry *dir_e = NULL;
+    while ((dir_e = sys_readdir(dir)))
     {
-        printf("/dir1/subdir1 open done!\n");
-        char *type = NULL;
-        struct dir_entry *dir_e = NULL;
-        while ((dir_e = sys_readdir(p_dir)))
-        {
-            type = dir_e->f_type == FT_REGULAR ? "regular" : "directory";
-            printf("    %s %s\n", type, dir_e->filename);
-        }
-        printf("close dir %d\n", sys_closedir(p_dir));
-    } 
-    else
-    {
-        printf("/dir1/subdir1 open fail!\n");
+        type = dir_e->f_type == FT_REGULAR ? "regular" : "directory";
+        printf("    %s    %s\n", type, dir_e->filename);
     }
+    sys_closedir(dir);
+
+    printf("try to delete nonempty directory /dir1/subdir1\n");
+    if (sys_rmdir("/dir1/subdir1") == -1)
+    {
+        printf("sys_rmdir: /dir/subdir1 delete fail!\n");
+    }
+
+    if (sys_unlink("/dir1/subdir1/file2") == 0)
+    {
+        printf("sys_unlink: /dir1/subdir1/file2 delete done\n");
+    }
+
+
+    printf("try to delete nonempty directory /dir1/subdir1 again\n");
+    if (sys_rmdir("/dir1/subdir1") == 0)
+    {
+        printf("sys_rmdir: /dir/subdir1 delete done!\n");
+    }
+
 
 //    process_execute(u_prog_a, "user_prog_a");    
 //    process_execute(u_prog_b, "user_prog_b");
