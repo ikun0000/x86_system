@@ -169,7 +169,7 @@ static void partition_format(struct partition *part)
 }
 
 /* 将最上层路径名称解析出来 */
-static char *path_parse(char *pathname, char *name_store)
+char *path_parse(char *pathname, char *name_store)
 {
     /* 根目录不需要解析 */
     if (pathname[0] == '/')

@@ -10,6 +10,7 @@
 #include "fs.h"
 #include "dir.h"
 #include "assert.h"
+#include "shell.h"
 
 void init(void);
 
@@ -17,6 +18,10 @@ int main(void)
 {
     put_str("\nI am kernel\n");
     init_all();
+    intr_enable();
+
+    cls_screen();
+    console_put_str("[root@localhost /]# ");
 
     while (1);
     return 0;
@@ -27,13 +32,12 @@ void init(void)
     uint32_t ret_pid = fork();
     if (ret_pid)
     {
-        printf("I am father, my pid is %d, child pid is %d\n", getpid(), ret_pid);
+        while (1);
     }
     else
     {
-        printf("I am child, my pid is %d, ret pid is %d\n", getpid(), ret_pid);
-        assert(1 == 2);
+        my_shell();
     }
-    while (1);
+    panic("init: should not be here");
 }
 

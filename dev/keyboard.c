@@ -186,7 +186,6 @@ static void intr_keyboard_handler(void)
             /* 如果输入缓冲区没满则回显字符到屏幕并加入缓冲区 */
             if (!ioq_full(&kbd_buf)) 
             {
-                put_char(cur_char);
                 ioq_putchar(&kbd_buf, cur_char);
             }           
 
