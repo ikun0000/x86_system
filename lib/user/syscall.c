@@ -69,7 +69,14 @@ void free(void *ptr)
     _syscall1(SYS_FREE, ptr);
 }
 
+/* 复制当前进程镜像 */
 int16_t fork(void)
 {
     return _syscall0(SYS_FORK);
+}
+
+/* 从文件描述符fd中读取count个字节到buf */
+int32_t read(int32_t fd, void *buf, uint32_t count)
+{
+    return _syscall3(SYS_READ, fd, buf, count);
 }
