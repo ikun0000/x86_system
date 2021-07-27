@@ -9,6 +9,7 @@
 #include "stdio.h"
 #include "fs.h"
 #include "dir.h"
+#include "assert.h"
 
 void init(void);
 
@@ -31,6 +32,7 @@ void init(void)
     else
     {
         printf("I am child, my pid is %d, ret pid is %d\n", getpid(), ret_pid);
+        assert(1 == 2);
     }
     while (1);
 }

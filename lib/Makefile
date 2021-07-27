@@ -22,7 +22,10 @@ stdio.o: stdio.c
 stdio_kern.o: kern/stdio_kern.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: print.o string.o bitmap.o list.o syscall.o stdio.o stdio_kern.o
+assert.o: user/assert.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: print.o string.o bitmap.o list.o syscall.o stdio.o stdio_kern.o assert.o
 
 clean:	
 	rm -rf *.o
