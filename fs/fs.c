@@ -925,6 +925,12 @@ int32_t sys_stat(const char *path, struct stat *buf)
     dir_close(searched_record.parent_dir);
     return ret;
 }
+
+/* 向屏幕输出一个字符 */
+void sys_putchar(char char_ascii)
+{
+    console_put_char(char_ascii);
+}
     
 void filesys_init() 
 {
