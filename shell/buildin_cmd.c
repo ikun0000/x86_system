@@ -230,7 +230,7 @@ int32_t buildin_touch(uint32_t argc, char **argv)
         else
         {
             int fd = open(final_path, O_CREAT);
-            if (fd > 2) ret = 0;
+            if (fd > 2) { close(fd); ret = 0; }
             else printf("touch: cannot create file %s\n", final_path);
         }
     }

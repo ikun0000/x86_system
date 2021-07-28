@@ -122,7 +122,21 @@ int32_t file_create(struct dir *parent_dir, char *filename, uint8_t flag)
     }
 
     /* file_table数组中的文件描述符的inode会指向他 */
+    struct task_struct *cur = running_thread();
+    uint32_t *cur_pagedir_bak = cur->pgdir;
+    cur->pgdir = NULL;
+    /* 以上3行代码执行完后分配的内存位于内核 */
     struct inode *new_file_inode = (struct inode *)sys_malloc(sizeof(struct inode));
+    /* 恢复pgdir */
+    cur->pgdir = cur_pagedir_bak;
+
+    
+    /* 
+        下面是原来的代码，但是有一个bug，当是在特权级3调用创建文件的时候，其申请的inode地址是
+        用户空间的地址，使用close关闭的时候会出错，因为系统默认是把所有inode地址都是呢和空间。
+
+        struct inode *new_file_inode = (struct inode *)sys_malloc(sizeof(struct inode));
+    */
     if (new_file_inode == NULL)
     {
         printk("file_create: sys_malloc for inode failed\n");
