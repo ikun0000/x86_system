@@ -160,7 +160,14 @@ void my_shell(void)
         else if (!strcmp("rmdir", argv[0])) buildin_rmdir(argc, argv);
         else if (!strcmp("touch", argv[0])) buildin_touch(argc, argv);
         else if (!strcmp("rm", argv[0])) buildin_rm(argc, argv);
-        else printf("external command\n");
+        else printf("my_shell: command not found: %s\n", argv[0]);
+
+        int32_t arg_idx = 0;
+        while (arg_idx < MAX_ARG_NR)
+        {
+            argv[arg_idx] = NULL;
+            arg_idx++;
+        } 
     }
     panic("my_shell: should not be here");
 }

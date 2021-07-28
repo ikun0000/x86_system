@@ -13,7 +13,10 @@ syscall_init.o: syscall_init.c
 fork.o: fork.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: tss.o process.o syscall_init.o fork.o
+exec.o: exec.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: tss.o process.o syscall_init.o fork.o exec.o
 
 clean:
 	rm -rf *.o

@@ -21,6 +21,7 @@ int main(void)
     intr_enable();
 
     cls_screen();
+    printf("Welcome to x86_system v0.11\n\n");
     console_put_str("[root@localhost /]# ");
 
     while (1);
