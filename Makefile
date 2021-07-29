@@ -35,6 +35,13 @@ symble_kernel.bin: $(KERNEL_SOURCE_FILE)
 
 all: boot.bin loader.bin kernel.bin
 
+build:
+	make all
+	bximage -mode=create -hd=60M -q x86_system.img
+	dd if=boot.bin of=x86_system.img bs=512 count=1 conv=notrunc
+	dd if=loader.bin of=x86_system.img bs=512 count=5 seek=1 conv=notrunc
+	dd if=kernel.bin of=x86_system.img bs=512 count=200 seek=9 conv=notrunc
+
 clean:
 	make -C boot clean
 	make -C kern clean
@@ -46,3 +53,4 @@ clean:
 	make -C shell clean
 	rm -rf *.bin
 	rm -rf *.o
+	rm -rf *.img

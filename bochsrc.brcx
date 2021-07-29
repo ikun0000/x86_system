@@ -1,0 +1,30 @@
+# setting 32M memory
+
+megs: 32
+
+# setting BIOS and VGA BISO
+romimage: file=/usr/local/bochs/share/bochs/BIOS-bochs-latest
+vgaromimage: file=/usr/local/bochs/share/bochs/VGABIOS-lgpl-latest
+
+# setting bochs disk
+
+# select boot disk
+boot: disk
+
+# setting log file
+log: bochs_out.log
+
+# disable mouse, enable keyboard
+mouse: enabled=0
+# keyboard_mapping: enabled=1,
+# map=/usr/local/bochs/share/bochs/keymaps/x11-pc-us.map
+keyboard: keymap=/usr/local/bochs/share/bochs/keymaps/x11-pc-us.map
+
+# disk setting
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+ata0-master: type=disk, path="path of system disk", mode=flat, cylinders=121, heads=16, spt=63
+ata0-slave: type=disk, path="path of data disk", mode=flat, cylinders=162, heads=16, spt=63
+# ata0-slave: type=none
+
+# add gdb supported, gdb can connect to port 1234 to debugging
+# gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
