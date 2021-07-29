@@ -75,3 +75,21 @@ uint32_t pipe_write(int32_t fd, const void *buf, uint32_t count)
     }
     return bytes_write;
 }
+
+/* 将fd2指向fd1所指向的文件，因为系统简陋，如果fd1是stdin、stdout、stderr
+   让fd2指向fd1后也无法实现预期功能，可以让stdin、stdout、stderr指向管道 */
+void sys_dup2(uint32_t fd1, uint32_t fd2)
+{
+    struct task_struct *cur = running_thread();   
+
+    if (fd1 < 3)
+    {
+        /* 这里主要是让stdin、stdout、stderr恢复原来的作用 */
+        cur->fd_table[fd2] = fd1;
+    }
+    else
+    {
+        uint32_t new_global_fd = cur->fd_table[fd1];
+        cur->fd_table[fd2] = new_global_fd;
+    }
+}

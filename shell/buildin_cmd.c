@@ -307,9 +307,17 @@ void buildin_clear(uint32_t argc, char **argv)
 /* cat命令内建函数 */
 void buildin_cat(uint32_t argc, char **argv)
 {
-    if (argc > 2 || argc == 1)
+    if (argc > 2)
     {
-        printf("cat: only support 1 argument.\neg: cat filename\n");
+        printf("cat: argument error\n");
+        return;
+    }
+    
+    if (argc == 1)
+    {
+        char buf[512] = {0, };
+        read(0, buf, 512); 
+        printf("%s", buf);
         return;
     }
 

@@ -135,6 +135,7 @@ static void help(void)
     printf("        touch: create a file\n");
     printf("        rm: remove a file\n");
     printf("        echo: print message to screen or redirect to file\n");
+    printf("        cat: show file content\n");
     printf("        pwd: show current work directory\n");
     printf("        ps: show process and thread information\n");
     printf("        clear: clear screen\n");
@@ -144,6 +145,31 @@ static void help(void)
     printf("        ctrl+w: clear input\n");
     
     putchar('\n');
+}
+
+/* 执行命令 */
+static void cmd_execute(int argc, char *argv[])
+{
+    if (!strcmp("ls", argv[0])) buildin_ls(argc, argv);
+    else if (!strcmp("cd", argv[0]))
+    {
+        if (buildin_cd(argc, argv) != NULL)
+        {
+            memset(cwd_cache, 0, MAX_PATH_LEN);
+            strcpy(cwd_cache, final_path);
+        }
+    }
+    else if (!strcmp("pwd", argv[0])) buildin_pwd(argc, argv);
+    else if (!strcmp("ps", argv[0])) buildin_ps(argc, argv);
+    else if (!strcmp("clear", argv[0])) buildin_clear(argc, argv);
+    else if (!strcmp("mkdir", argv[0])) buildin_mkdir(argc, argv);
+    else if (!strcmp("rmdir", argv[0])) buildin_rmdir(argc, argv);
+    else if (!strcmp("touch", argv[0])) buildin_touch(argc, argv);
+    else if (!strcmp("rm", argv[0])) buildin_rm(argc, argv);
+    else if (!strcmp("cat", argv[0])) buildin_cat(argc, argv);
+    else if (!strcmp("echo", argv[0])) buildin_echo(argc, argv);
+    else if (!strcmp("help", argv[0])) help();
+    else printf("my_shell: command not found: %s\n", argv[0]);
 }
 
 /* 简单的shell */
@@ -157,34 +183,70 @@ void my_shell(void)
         memset(cmd_line, 0, cmd_len);
         readline(cmd_line, cmd_len);
         if (cmd_line[0] == 0) continue;
-        argc = -1;
-        argc = cmd_parse(cmd_line, argv, ' ');
-        if (argc == -1)
+
+        /* 针对管道处理 */
+        char *pipe_symbol = strchr(cmd_line, '|');
+        if (pipe_symbol)
         {
-            printf("num of arguments exceed %d\n", MAX_ARG_NR);
-            continue;
-        }
-        
-        if (!strcmp("ls", argv[0])) buildin_ls(argc, argv);
-        else if (!strcmp("cd", argv[0]))
-        {
-            if (buildin_cd(argc, argv) != NULL)
+            /* 输入命令有管道 */
+            /* 生成管道 */
+            int32_t fd[2] = {-1, -1};
+            pipe(fd);
+            /* 让标准输出指向管道的输入 */
+            dup2(fd[1], 1);
+            
+            /* 第一个命令，把|用0截断 */
+            char *each_cmd = cmd_line;
+            pipe_symbol = strchr(each_cmd, '|');
+            *pipe_symbol = 0;
+
+            /* 执行第一个命令，命令的输出会写入到管道中 */
+            argc = -1;
+            argc = cmd_parse(each_cmd, argv, ' ');
+            cmd_execute(argc, argv);
+
+            /* 跨过原来第一个 |  */
+            each_cmd = pipe_symbol + 1;
+            
+            /* 将标准输入指向刚才的管道 */
+            dup2(fd[0], 0);
+            
+            /* 处理中间的命令，他们的输入输出都会在管道中进行 */
+            while ((pipe_symbol = strchr(each_cmd, '|')))
             {
-                memset(cwd_cache, 0, MAX_PATH_LEN);
-                strcpy(cwd_cache, final_path);
+                *pipe_symbol = 0;
+                argc = -1;
+                argc = cmd_parse(each_cmd, argv, ' ');
+                cmd_execute(argc, argv);
+                each_cmd = pipe_symbol + 1;
             }
+
+            /* 将标准输出恢复到屏幕 */
+            dup2(1, 1);
+        
+            /* 处理最后一个命令 */
+            argc = -1;
+            argc = cmd_parse(each_cmd, argv, ' ');
+            cmd_execute(argc, argv);
+            
+            /* 恢复标准输入为键盘 */
+            dup2(0, 0);
+            
+            close(fd[0]);
+            close(fd[1]);
         }
-        else if (!strcmp("pwd", argv[0])) buildin_pwd(argc, argv);
-        else if (!strcmp("ps", argv[0])) buildin_ps(argc, argv);
-        else if (!strcmp("clear", argv[0])) buildin_clear(argc, argv);
-        else if (!strcmp("mkdir", argv[0])) buildin_mkdir(argc, argv);
-        else if (!strcmp("rmdir", argv[0])) buildin_rmdir(argc, argv);
-        else if (!strcmp("touch", argv[0])) buildin_touch(argc, argv);
-        else if (!strcmp("rm", argv[0])) buildin_rm(argc, argv);
-        else if (!strcmp("cat", argv[0])) buildin_cat(argc, argv);
-        else if (!strcmp("echo", argv[0])) buildin_echo(argc, argv);
-        else if (!strcmp("help", argv[0])) help();
-        else printf("my_shell: command not found: %s\n", argv[0]);
+        else
+        {
+            /* 输入命令没有管道 */
+            argc = -1;
+            argc = cmd_parse(cmd_line, argv, ' ');
+            if (argc == -1)
+            {
+                printf("num of arguments exceed %d\n", MAX_ARG_NR);
+                continue;
+            }
+            cmd_execute(argc, argv);
+        }
 
         int32_t arg_idx = 0;
         while (arg_idx < MAX_ARG_NR)

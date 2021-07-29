@@ -201,3 +201,9 @@ int32_t pipe(int32_t pipefd[2])
 {
     return _syscall1(SYS_PIPE, pipefd);
 }
+
+/* 让文件描述符fd2指向文件描述符fd1的文件 */
+void dup2(uint32_t fd1, uint32_t fd2)
+{
+    _syscall2(SYS_DUP2, fd1, fd2);
+}
