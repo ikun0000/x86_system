@@ -7,7 +7,10 @@ shell.o: shell.c
 buildin_cmd.o: buildin_cmd.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: shell.o buildin_cmd.o
+pipe.o: pipe.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: shell.o buildin_cmd.o pipe.o
 
 clean:
 	rm -rf *.o

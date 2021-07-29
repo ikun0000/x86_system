@@ -27,5 +27,6 @@ void ioqueue_init(struct ioqueue *ioq);
 int ioq_full(struct ioqueue *ioq);
 char ioq_getchar(struct ioqueue *ioq);
 void ioq_putchar(struct ioqueue *ioq, char byte);
+uint32_t ioq_length(struct ioqueue *ioq);
 
 #endif

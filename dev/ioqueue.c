@@ -92,3 +92,14 @@ void ioq_putchar(struct ioqueue *ioq, char byte)
     /* 唤醒等待的消费者 */
     if (ioq->consumer != NULL) wakeup(&ioq->consumer);
 }
+
+/* 返回环形缓冲区中数据的长度 */
+uint32_t ioq_length(struct ioqueue *ioq)
+{
+    uint32_t len = 0;
+    /* 数据从head写入，从tail读出 */
+    if (ioq->head >= ioq->tail) len = ioq->head - ioq->tail;
+    else len = bufsize - (ioq->tail - ioq->head);
+
+    return len;
+}
