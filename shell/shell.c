@@ -160,6 +160,8 @@ void my_shell(void)
         else if (!strcmp("rmdir", argv[0])) buildin_rmdir(argc, argv);
         else if (!strcmp("touch", argv[0])) buildin_touch(argc, argv);
         else if (!strcmp("rm", argv[0])) buildin_rm(argc, argv);
+        else if (!strcmp("cat", argv[0])) buildin_cat(argc, argv);
+        else if (!strcmp("echo", argv[0])) buildin_echo(argc, argv);
         else printf("my_shell: command not found: %s\n", argv[0]);
 
         int32_t arg_idx = 0;

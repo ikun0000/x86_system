@@ -304,6 +304,114 @@ void buildin_clear(uint32_t argc, char **argv)
     clear();
 }
 
+/* cat命令内建函数 */
+void buildin_cat(uint32_t argc, char **argv)
+{
+    if (argc > 2 || argc == 1)
+    {
+        printf("cat: only support 1 argument.\neg: cat filename\n");
+        return;
+    }
+
+    int buf_size = 1024;
+    char abs_path[MAX_PATH_LEN] = {0, };
+    void *buf = malloc(buf_size);
+    if (buf == NULL) 
+    {
+        printf("cat: malloc memory failed\n");
+        return;
+    }
+
+    if (argv[1][0] != '/')
+    {
+        getcwd(abs_path, MAX_PATH_LEN);
+        strcat(abs_path, "/");
+        strcat(abs_path, argv[1]);
+    }
+    else
+    {
+        strcpy(abs_path, argv[1]);
+    }
+
+    int fd = open(abs_path, O_RDONLY);
+    if (fd == -1)
+    {
+        printf("cat: open: open %s failed\n", argv[1]);
+        return;
+    }
+
+    int read_bytes = 0;
+    while (1)
+    {
+        read_bytes = read(fd, buf, buf_size);
+        if (read_bytes == -1) break;
+        write(1, buf, read_bytes);
+    }
+    
+    free(buf);
+    close(fd);
+}
+
+/* echo命令内建函数 */
+void buildin_echo(uint32_t argc, char **argv)
+{
+    if (!(argc == 2 || argc == 4))
+    {
+        printf("usage: `echo <content> [>|>> filename] `\n");
+        return;
+    }
+
+    if (argc == 2)
+    {
+        printf("%s\n", argv[1]);
+    }
+    else
+    {
+        char abs_path[MAX_PATH_LEN] = {0, };
+        if (argv[3][0] != '/') 
+        {
+            getcwd(abs_path, MAX_PATH_LEN);
+            strcat(abs_path, "/");
+            strcat(abs_path, argv[3]);
+        }
+        else
+        {
+            strcpy(abs_path, argv[3]);
+        }
+
+        int fd = open(abs_path, O_WRONLY);
+        if (fd == -1)
+        {
+            printf("echo: open: open %s failed\n", argv[3]);
+            return;
+        }
+
+        if (!strcmp(">", argv[2]))
+        {
+            /* 没有编写截断文件长度的系统调用，干脆直接删了再建一个同名的文件 */
+            close(fd);
+            unlink(abs_path);
+            fd = open(abs_path, O_CREAT | O_WRONLY);
+            if (fd == -1)
+            {
+                printf("echo: open: open %s failed\n", argv[3]);
+                return;
+            }
+            write(fd, argv[1], strlen(argv[1]));
+        }
+        else if (!strcmp(">>", argv[2]))
+        {
+            lseek(fd, -1, SEEK_END);
+            write(fd, argv[1], strlen(argv[1]));
+        }
+        else
+        {
+            printf("echo: relocation failed!\n");
+        }
+        close(fd);
+    }
+}
+
 /* 将路径old_abs_path中的.和..转化为绝对路径存入new_abs_path */
 static void wash_path(char *old_abs_path, char *new_abs_path)
 {

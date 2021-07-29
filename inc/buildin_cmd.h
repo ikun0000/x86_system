@@ -12,6 +12,8 @@ int32_t buildin_rm(uint32_t argc, char **argv);
 void buildin_pwd(uint32_t argc, char **argv);
 void buildin_ps(uint32_t argc, char **argv);
 void buildin_clear(uint32_t argc, char **argv);
+void buildin_cat(uint32_t argc, char **argv);
+void buildin_echo(uint32_t argc, char **argv);
 void make_clear_abs_path(char *path, char *wash_buf);
 
 #endif
