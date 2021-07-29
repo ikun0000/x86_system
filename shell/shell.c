@@ -125,6 +125,27 @@ static int32_t cmd_parse(char *cmd_str, char **argv, char token)
     return argc;
 }
 
+static void help(void)
+{
+    printf(" buildin commands:\n");
+    printf("        ls: show all directory and file information\n");
+    printf("        cd: change current work directory\n");
+    printf("        mkdir: create a directory\n");
+    printf("        rmdir: remove a empty directory\n");
+    printf("        touch: create a file\n");
+    printf("        rm: remove a file\n");
+    printf("        echo: print message to screen or redirect to file\n");
+    printf("        pwd: show current work directory\n");
+    printf("        ps: show process and thread information\n");
+    printf("        clear: clear screen\n");
+    printf("        help: show this message\n");
+    printf(" shortcut key:\n");
+    printf("        ctrl+l: clear screen\n");
+    printf("        ctrl+w: clear input\n");
+    
+    putchar('\n');
+}
+
 /* 简单的shell */
 void my_shell(void)
 {
@@ -162,6 +183,7 @@ void my_shell(void)
         else if (!strcmp("rm", argv[0])) buildin_rm(argc, argv);
         else if (!strcmp("cat", argv[0])) buildin_cat(argc, argv);
         else if (!strcmp("echo", argv[0])) buildin_echo(argc, argv);
+        else if (!strcmp("help", argv[0])) help();
         else printf("my_shell: command not found: %s\n", argv[0]);
 
         int32_t arg_idx = 0;
