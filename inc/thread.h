@@ -91,6 +91,7 @@ struct task_struct
     struct mem_block_desc u_block_desc[DESC_CNT];   // 用户进程内存块描述符
     uint32_t cwd_inode_nr;                          // 进程所在工作目录的inode编号
     pid_t parent_pid;                               // 父进程PID
+    int8_t exit_status;                             // 进程结束调用exit传入的参数
     uint32_t stack_magic;                           // 用于做栈的边界标记，用于检查栈溢出
 };
 
@@ -108,5 +109,8 @@ void thread_unblock(struct task_struct *pthread);
 void thread_yield(void);
 pid_t fork_pid(void);
 void sys_ps(void);
+void thread_exit(struct task_struct *thread_over, int need_schedule);
+struct task_struct *pid2thread(int32_t pid);
+void release_pid(pid_t pid);
 
 #endif

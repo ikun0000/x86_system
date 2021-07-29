@@ -16,7 +16,10 @@ fork.o: fork.c
 exec.o: exec.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-all: tss.o process.o syscall_init.o fork.o exec.o
+wait_exit.o: wait_exit.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+all: tss.o process.o syscall_init.o fork.o exec.o wait_exit.o
 
 clean:
 	rm -rf *.o

@@ -183,3 +183,15 @@ int execv(const char *pathname, char **argv)
 {
     return _syscall2(SYS_EXECV, pathname, argv);
 }
+
+/* 以status状态推出 */
+void exit(int32_t status)
+{
+    _syscall1(SYS_EXIT, status);
+}
+
+/* 等待子进程，把子进程退出状态存放到status */
+pid_t wait(int32_t *status)
+{
+    return _syscall1(SYS_WAIT, status);
+}
